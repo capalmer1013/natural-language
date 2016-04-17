@@ -48,6 +48,8 @@ class weightedGraph:
                 item['weight'].numerator += 1
                 item['weight'].denominator += 1
 
+    def generateSentence(self, listOfTaggedWords, listOfTaggedSentences):
+        print 'balls'
 
 class rational:
     def __init__(self):

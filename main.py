@@ -30,6 +30,7 @@ listOfWords = []
 listOfTokens = []
 listOfTaggedTokens = []
 listOfSentenceTags = []
+listOfTaggedWords = []
 
 for sentence in listOfSentences:
     listOfTokens.append(nltk.wordpunct_tokenize(sentence))
@@ -55,12 +56,19 @@ for sentenceTag in listOfTaggedTokens:
 for sentence in listOfTokens:
     prevWord = ''
     for word in sentence:
+        if word not in G.states:
+            G.states.append(word)
         if prevWord == '':
             prevWord = word
             G.trainStart(word)
         else:
             G.train(prevWord, word)
-
+for taggedTokens in listOfTaggedTokens:
+    for token in taggedTokens:
+        if token not in listOfTaggedWords:
+            listOfWords.append(token)
+for i in range(50):
+    G.generateSentence()
 print 'hello'
 
 
