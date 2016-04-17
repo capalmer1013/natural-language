@@ -22,9 +22,13 @@ users = api.GetFriends()
 statuses = []
 print 'getting statuses'
 for u in users:
-    timeline = api.GetUserTimeline(u)
+    timeline = api.GetUserTimeline(screen_name=u.screen_name)
     for each in timeline:
         statuses.append(each.text)
+
+# timeline = api.GetUserTimeline(user_id='Lecsidego')
+# for each in timeline:
+#     statuses.append(each.text)
 
 # token =
 # token_key =
@@ -92,14 +96,15 @@ for sentenceTag in listOfTaggedTokens:
 for sentence in listOfTokens:
     prevWord = ''
     for word in sentence:
-        if word not in G.states:
-            G.states.append(word)
-        if prevWord == '':
-            prevWord = word
-            G.trainStart(word)
-        else:
-            G.train(prevWord, word)
-            prevWord = word
+        if 'http' not in word and '://' not in word:
+            if word not in G.states:
+                G.states.append(word)
+            if prevWord == '':
+                prevWord = word
+                G.trainStart(word)
+            else:
+                G.train(prevWord, word)
+                prevWord = word
 
 for taggedTokens in listOfTaggedTokens:
     for token in taggedTokens:
@@ -107,6 +112,9 @@ for taggedTokens in listOfTaggedTokens:
             listOfTaggedWords.append(token)
 
 tweet = G.generateSentence(listOfTaggedWords, listOfSentenceTags)
+while len(tweet) < 20:
+    tweet = G.generateSentence(listOfTaggedWords, listOfSentenceTags)
+
 listofAts = find(tweet, '@')
 for index in listofAts:
     tweet = tweet[:index]+tweet[index+1:]

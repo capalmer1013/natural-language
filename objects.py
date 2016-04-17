@@ -61,8 +61,11 @@ class weightedGraph:
         returnString = ''
         sentenceList =[]
         tagList = []
-        nextState = self.findNextState('<begin>')
         done = False
+        nextState = self.findNextState('<begin>')
+        if nextState is None:
+            done = True
+
         listOfPossibleSentenceStructs = listOfTaggedSentences
 
         while not done:
@@ -92,6 +95,8 @@ class weightedGraph:
                         foundInNextPossibleTag = True
 
             nextState = tempState
+            if nextState is None:
+                done = True
 
             for sentenceStructure in listOfPossibleSentenceStructs:
                 if sentenceStructure[:len(tagList)] != tagList:
