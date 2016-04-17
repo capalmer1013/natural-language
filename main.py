@@ -13,6 +13,7 @@ sentenceEnders = ['.', '?', '!']
 with open('fear_and_loathing.txt', 'r') as f:
     text = ''
     for line in f:
+        line = ' '.join(line.split())
         line = line.strip()
         text += line+' '
 
@@ -51,6 +52,14 @@ for sentenceTag in listOfTaggedTokens:
     if tempList not in listOfSentenceTags:
         listOfSentenceTags.append(tempList)
 
+for sentence in listOfTokens:
+    prevWord = ''
+    for word in sentence:
+        if prevWord == '':
+            prevWord = word
+            G.trainStart(word)
+        else:
+            G.train(prevWord, word)
 
 print 'hello'
 

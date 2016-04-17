@@ -14,7 +14,7 @@ class weightedGraph:
                 found = True
 
         if not found:
-            self.edges['<begin>'].append({'weight': rational, 'data': toState})
+            self.edges['<begin>'].append({'weight': rational(), 'data': toState})
             self.edges['<begin>'][-1]['weight'].numerator += 1
             self.edges['<begin>'][-1]['weight'].denominator += 1
 
@@ -35,14 +35,14 @@ class weightedGraph:
 
             else:
 
-                self.edges[fromState].append({'weight': rational, 'data': toState})
+                self.edges[fromState].append({'weight': rational(), 'data': toState})
                 self.edges[fromState][-1]['weight'].numerator += 1
 
                 for outState in self.edges[fromState]:
                     outState['weight'].denominator += 1
 
         else:
-            self.edges[fromState] = [{'weight': rational, 'data': toState}]
+            self.edges[fromState] = [{'weight': rational(), 'data': toState}]
 
             for item in self.edges[fromState]:
                 item['weight'].numerator += 1
