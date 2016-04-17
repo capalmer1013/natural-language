@@ -1,30 +1,55 @@
 import nltk
 import re
 import objects
+# from twitter import *
+import twitter
 from nltk.corpus import treebank
 
+
+print 'authorizing'
+api = twitter.Api(consumer_key='x5bCSpVNRktPA8I77CEuiXBAF', consumer_secret='j3y323NvjALJk8JwmoMYQtKKr4nUrCGHQgnjxecI51wduofPeS',
+                  access_token_key='721754140406374400-ONJDR3cBSX5Xy1UBtZxZ5HTNRgB0lfw',
+                  access_token_secret='ht3AeapviyiQ7whquilPv5pKNbmMLul6nsBqeTUmuedt4')
+
+print 'getting friends'
+users = api.GetFriends()
+statuses = []
+print 'getting statuses'
+for u in users:
+    statuses.append(u.status.text)
+
+# token =
+# token_key =
+# con_secret =  vY53NMXFGB4HMycdQtusJrlo
+# con_secret_key =
+# t = Twitter(
+#     auth=OAuth(token, token_key, con_secret, con_secret_key)
+# )
+print 'good to go'
 G = objects.weightedGraph()
 
 nltk.data.path.append('/run/media/cpalmer/WD/nltk_data')
 pat = re.compile(r'([A-Z][^\.!?]*[\.!?])', re.M)
 
-prefixes = ['Mr.', 'Dr.', 'Ms.', 'Mrs.']
-sentenceEnders = ['.', '?', '!']
-with open('fl-clean.txt', 'r') as f:
-    text = ''
-    for line in f:
-        line = ' '.join(line.split())
-        line = line.strip()
-        text += line+' '
+# prefixes = ['Mr.', 'Dr.', 'Ms.', 'Mrs.']
+# sentenceEnders = ['.', '?', '!']
+# with open('fl-clean.txt', 'r') as f:
+#     text = ''
+#     for line in f:
+#         line = ' '.join(line.split())
+#         line = line.strip()
+#         text += line+' '
 
-listOfSentences = pat.findall(text)
+# listOfSentences = pat.findall(text)
 
-i = 0
-for sentence in listOfSentences:
-    if sentence in prefixes:
-        listOfSentences[i] += listOfSentences[i+1]
-        del listOfSentences[i+1]
-    i += 1
+listOfSentences = statuses
+
+# i = 0
+# for sentence in listOfSentences:
+#     if sentence in prefixes:
+#         listOfSentences[i] += listOfSentences[i+1]
+#         del listOfSentences[i+1]
+#     i += 1
 
 listOfWords = []
 listOfTokens = []
@@ -70,7 +95,8 @@ for taggedTokens in listOfTaggedTokens:
         if token not in listOfTaggedWords:
             listOfTaggedWords.append(token)
 for i in range(10):
-    print G.generateSentence(listOfTaggedWords, listOfSentenceTags)
+    api.PostUpdate(G.generateSentence(listOfTaggedWords, listOfSentenceTags))
+    # print G.generateSentence(listOfTaggedWords, listOfSentenceTags)
 print 'hello'
 
 
