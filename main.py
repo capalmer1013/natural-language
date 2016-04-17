@@ -10,7 +10,7 @@ pat = re.compile(r'([A-Z][^\.!?]*[\.!?])', re.M)
 
 prefixes = ['Mr.', 'Dr.', 'Ms.', 'Mrs.']
 sentenceEnders = ['.', '?', '!']
-with open('fear_and_loathing.txt', 'r') as f:
+with open('fl-clean.txt', 'r') as f:
     text = ''
     for line in f:
         line = ' '.join(line.split())
@@ -63,12 +63,14 @@ for sentence in listOfTokens:
             G.trainStart(word)
         else:
             G.train(prevWord, word)
+            prevWord = word
+
 for taggedTokens in listOfTaggedTokens:
     for token in taggedTokens:
         if token not in listOfTaggedWords:
-            listOfWords.append(token)
-for i in range(50):
-    G.generateSentence()
+            listOfTaggedWords.append(token)
+for i in range(10):
+    print G.generateSentence(listOfTaggedWords, listOfSentenceTags)
 print 'hello'
 
 
