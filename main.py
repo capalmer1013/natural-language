@@ -3,8 +3,13 @@ import re
 import objects
 # from twitter import *
 import twitter
+from firebase import firebase
 from nltk.corpus import treebank
+import json
 
+firebase = firebase.FirebaseApplication('https://hackbotai.firebaseio.com/', None)
+
+fetchTweets = False
 
 def cleanTweets(inputTweet):
     inputTweet = re.sub(r'https?:\/\/.*[\r\n]*', '', inputTweet)
@@ -17,7 +22,10 @@ def cleanTweets(inputTweet):
 
             inputTweet = inputTweet[:index] + inputTweet[i - 1:]
 
+            if '@ ' in inputTweet:
+                inputTweet = inputTweet[:index] + inputTweet[index+1:]
     return inputTweet
+
 
 def find(s, ch):
     return [i for i, ltr in enumerate(s) if ltr == ch]
@@ -31,14 +39,39 @@ api = twitter.Api(consumer_key='x5bCSpVNRktPA8I77CEuiXBAF', consumer_secret='j3y
 #                   access_token_key='707825255121821697-O8PIQ7F0yAYWpT2do56xxUbtWNVRK4c',
 #                   access_token_secret='oSIEKyc70gi0g5NYCMm8XBZdN6SF6D643Z6dQggTqnkYy')
 
-print 'getting friends'
-users = api.GetFriends()
 statuses = []
-print 'getting statuses'
-for u in users:
-    timeline = api.GetUserTimeline(screen_name=u.screen_name)
-    for each in timeline:
-        statuses.append(each.text)
+
+if fetchTweets:
+    listOfExistingUsers = []
+    existingUsers = firebase.get('/users', None)
+    print 'getting friends'
+    users = api.GetFriends()
+
+    for b in existingUsers:
+        listOfExistingUsers.append(b)
+
+    print 'getting statuses'
+    statusDict = {}
+    for u in users:
+        if u.screen_name not in listOfExistingUsers:
+            statusDict[u.screen_name] = []
+            timeline = api.GetUserTimeline(screen_name=u.screen_name)
+
+            for each in timeline:
+                statusDict[u.screen_name].append(each.text.lower())
+                statuses.append(each.text.lower())
+
+    # statusDict = json.dumps(statusDict)
+    print 'updating firebase'
+    for u in statusDict:
+        print u
+        for each in statusDict[u]:
+            result = firebase.post('/users/'+u, each)
+else:
+    result = firebase.get('/users', None)
+    for user in result:
+        for statusCode in result[user]:
+            statuses.append(result[user][statusCode])
 
 # timeline = api.GetUserTimeline(user_id='Lecsidego')
 # for each in timeline:
@@ -51,7 +84,7 @@ for u in users:
 # t = Twitter(
 #     auth=OAuth(token, token_key, con_secret, con_secret_key)
 # )
-print 'good to go'
+print 'Generating tweet'
 G = objects.weightedGraph()
 
 nltk.data.path.append('/run/media/cpalmer/WD/nltk_data')
@@ -129,30 +162,49 @@ for taggedTokens in listOfTaggedTokens:
     for token in taggedTokens:
         if token not in listOfTaggedWords:
             listOfTaggedWords.append(token)
+print 'tweeting'
+newlist = []
 
-tweet = G.generateSentence(listOfTaggedWords, listOfSentenceTags)
-while len(tweet) < 20:
+for word in listOfWords:
+    newlist.append(word[0])
+
+for i in range(3):
+    print i
     tweet = G.generateSentence(listOfTaggedWords, listOfSentenceTags)
+    while len(tweet) < 20:
+        tweet = G.generateSentence(listOfTaggedWords, listOfSentenceTags)
 
-listofAts = find(tweet, '@')
-for index in listofAts:
-    tweet = tweet[:index]+tweet[index+1:]
+    print '----------------------------------'
+    print tweet
+    listofAts = find(tweet, '@')
+    for index in listofAts:
+        tweet = tweet[:index]+tweet[index+1:]
+    tweet = tweet.replace('# ', '#')
+    tweet = tweet.replace(' .', '.')
+    tweet = tweet.replace(' ,', ',')
+    tweet = tweet.replace(' !', '!')
+    tweet = tweet.replace(' :', ':')
+    tweet = tweet.replace(' ?', '?')
+    tweet = tweet.replace(" '", "'")
+    tweet = tweet.replace("' ", "'")
+    tweet = tweet.replace(' ;', ';')
+    tweet = tweet.replace('& amp', '&amp')
+    tweet = re.sub(r'^[^iIaA\W] ', '', tweet)
+    tweet = re.sub(r' [^iIaA\W] ', '', tweet)
+    tweet = tweet.strip()
+    if len(tweet) > 140:
+        tweet = tweet[:140]
 
-tweet = tweet.replace('# ', '#')
-tweet = tweet.replace(' .', '.')
-tweet = tweet.replace(' ,', ',')
-tweet = tweet.replace(' !', '!')
-tweet = tweet.replace(' :', ':')
-tweet = tweet.replace(' ?', '?')
-tweet = tweet.replace(" '", "'")
-tweet = tweet.replace("' ", "'")
-if len(tweet) > 140:
-    tweet = tweet[:140]
+    tempstring = nltk.wordpunct_tokenize(tweet)
+    # tempstring = tweet.split()
 
+    if tempstring[-1] not in newlist:
+        tweet = tweet[:-len(tempstring[-1])]
 
-api.PostUpdate(tweet)
+    print tweet
+    # api.PostUpdate(tweet)
     # print G.generateSentence(listOfTaggedWords, listOfSentenceTags)
-print 'hello'
+print 'done'
 
 
 # tokens = nltk.wordpunct_tokenize(text)
