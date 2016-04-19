@@ -4,6 +4,7 @@ import objects
 # from twitter import *
 import twitter
 from firebase import firebase
+import random
 from nltk.corpus import treebank
 import json
 
@@ -11,8 +12,16 @@ firebase = firebase.FirebaseApplication('https://hackbotai.firebaseio.com/', Non
 
 fetchTweets = False
 
+
 def cleanTweets(inputTweet):
     inputTweet = re.sub(r'https?:\/\/.*[\r\n]*', '', inputTweet)
+
+    inputTweet = inputTweet.replace('(', '')
+    inputTweet = inputTweet.replace(')', '')
+    inputTweet = inputTweet.replace('"', '')
+    inputTweet = inputTweet.replace(' / ', '')
+    inputTweet = inputTweet.replace('rt: ', '')
+    inputTweet = inputTweet.replace('RT: ', '')
     if '@' in inputTweet:
         while '@' in inputTweet:
             index = inputTweet.index('@')
@@ -39,6 +48,8 @@ api = twitter.Api(consumer_key='x5bCSpVNRktPA8I77CEuiXBAF', consumer_secret='j3y
 #                   access_token_key='707825255121821697-O8PIQ7F0yAYWpT2do56xxUbtWNVRK4c',
 #                   access_token_secret='oSIEKyc70gi0g5NYCMm8XBZdN6SF6D643Z6dQggTqnkYy')
 
+currentTrends = api.GetTrendsCurrent()
+currentTrend = currentTrends[random.randint(0, len(currentTrends))].name
 statuses = []
 
 if fetchTweets:
@@ -168,7 +179,7 @@ newlist = []
 for word in listOfWords:
     newlist.append(word[0])
 
-for i in range(3):
+for i in range(1):
     print i
     tweet = G.generateSentence(listOfTaggedWords, listOfSentenceTags)
     while len(tweet) < 20:
@@ -189,17 +200,26 @@ for i in range(3):
     tweet = tweet.replace("' ", "'")
     tweet = tweet.replace(' ;', ';')
     tweet = tweet.replace('& amp', '&amp')
-    tweet = re.sub(r'^[^iIaA\W] ', '', tweet)
-    tweet = re.sub(r' [^iIaA\W] ', '', tweet)
+    oldTweet = tweet
+    while oldTweet != tweet:
+        oldTweet = tweet
+        tweet = re.sub(r'^[^iIaA\W] ', '', tweet)
+        tweet = re.sub(r' [^iIaA\W] ', '', tweet)
+
     tweet = tweet.strip()
     if len(tweet) > 140:
         tweet = tweet[:140]
+
+    tweet = tweet.strip()
 
     tempstring = nltk.wordpunct_tokenize(tweet)
     # tempstring = tweet.split()
 
     if tempstring[-1] not in newlist:
         tweet = tweet[:-len(tempstring[-1])]
+
+    if len(tweet)-140 >= len(currentTrend):
+        tweet += currentTrend
 
     print tweet
     # api.PostUpdate(tweet)
