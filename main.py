@@ -20,8 +20,7 @@ def cleanTweets(inputTweet):
     inputTweet = inputTweet.replace(')', '')
     inputTweet = inputTweet.replace('"', '')
     inputTweet = inputTweet.replace(' / ', '')
-    inputTweet = inputTweet.replace('rt: ', '')
-    inputTweet = inputTweet.replace('RT: ', '')
+
     if '@' in inputTweet:
         while '@' in inputTweet:
             index = inputTweet.index('@')
@@ -58,8 +57,9 @@ if fetchTweets:
     print 'getting friends'
     users = api.GetFriends()
 
-    for b in existingUsers:
-        listOfExistingUsers.append(b)
+    if existingUsers is not None:
+        for b in existingUsers:
+            listOfExistingUsers.append(b)
 
     print 'getting statuses'
     statusDict = {}
@@ -136,7 +136,8 @@ listOfSentenceTags = []
 listOfTaggedWords = []
 
 for sentence in listOfSentences:
-    listOfTokens.append(nltk.wordpunct_tokenize(sentence))
+    # listOfTokens.append(nltk.wordpunct_tokenize(sentence))
+    listOfTokens.append(nltk.word_tokenize(sentence))
 
 for token in listOfTokens:
     listOfTaggedTokens.append(nltk.pos_tag(token))
@@ -198,13 +199,15 @@ for i in range(1):
     tweet = tweet.replace(' ?', '?')
     tweet = tweet.replace(" '", "'")
     tweet = tweet.replace("' ", "'")
-    tweet = tweet.replace(' ;', ';')
-    tweet = tweet.replace('& amp', '&amp')
-    oldTweet = tweet
+    tweet = tweet.replace(' ;', '')
+    tweet = tweet.replace('& amp', '&')
+    tweet = tweet.replace('rt: ', '')
+    tweet = tweet.replace('RT: ', '')
+    oldTweet = ''
     while oldTweet != tweet:
         oldTweet = tweet
         tweet = re.sub(r'^[^iIaA\W] ', '', tweet)
-        tweet = re.sub(r' [^iIaA\W] ', '', tweet)
+        tweet = re.sub(r' [^iIaA\W] ', ' ', tweet)
 
     tweet = tweet.strip()
     if len(tweet) > 140:
@@ -212,7 +215,8 @@ for i in range(1):
 
     tweet = tweet.strip()
 
-    tempstring = nltk.wordpunct_tokenize(tweet)
+    # tempstring = nltk.wordpunct_tokenize(tweet)
+    tempstring = nltk.word_tokenize(tweet)
     # tempstring = tweet.split()
 
     if tempstring[-1] not in newlist:
@@ -222,7 +226,7 @@ for i in range(1):
         tweet += currentTrend
 
     print tweet
-    # api.PostUpdate(tweet)
+    api.PostUpdate(tweet)
     # print G.generateSentence(listOfTaggedWords, listOfSentenceTags)
 print 'done'
 
