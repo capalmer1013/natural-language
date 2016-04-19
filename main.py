@@ -206,8 +206,8 @@ for i in range(1):
     oldTweet = ''
     while oldTweet != tweet:
         oldTweet = tweet
-        tweet = re.sub(r'^[^iIaA\W] ', '', tweet)
-        tweet = re.sub(r' [^iIaA\W] ', ' ', tweet)
+        tweet = re.sub(r'^[^iIaA\w] ', '', tweet)
+        tweet = re.sub(r' [^iIaA\w] ', ' ', tweet)
 
     tweet = tweet.strip()
     if len(tweet) > 140:
@@ -222,7 +222,7 @@ for i in range(1):
     if tempstring[-1] not in newlist:
         tweet = tweet[:-len(tempstring[-1])]
 
-    if len(tweet)-140 >= len(currentTrend):
+    if 140 - len(tweet) >= len(currentTrend):
         tweet += currentTrend
 
     print tweet
