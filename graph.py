@@ -12,18 +12,24 @@ import string
 import json
 import random
 
-# TODO generalize this to use any hashable thing as a node
+testFilename = "fear_and_loathing.txt"
+graphFile = "wordGraph.json"
 
-def addLineToWeightedGraph(G, L):
+def createWeightedGraphFromSequence(G, L):
     """ given a line of text and a graph:
         This function is intended to append the
         probability of word traversals to the graph
     """
-    PrevState = ''
+    PrevState = '<START>'
     L = L.split()
+    L.append("<END>")
     for each in L:
         # removes non-printable characters
-        each = ''.join([x for x in each if x in string.ascii_letters])
+        if not(each == "<START>" or each == "<END>"):
+            each = ''.join([x for x in each if x in string.ascii_letters])
+
+        if not each:
+            continue
 
         if not PrevState:
             PrevState = each
@@ -39,21 +45,21 @@ def addLineToWeightedGraph(G, L):
         PrevState = each
 
 
-def traverseGraph(G, n, node=None):
+
+def traverseGraph(G, n, node="<START>"):
     """ Generate a traversal of length n
     """
     traversal = []
     if not node:
         node = random.choice(G.keys())
 
-    for _ in range(n):
-        traversal.append(node)
-        #print traversal
+    while node != "<END>":
         den = sum([G[node][x] for x in G[node]])
         choices = [(c, float(G[node][c])/den) for c in G[node]]
         node = weighted_choice(choices)
+        traversal.append(node)
 
-    return traversal
+    return traversal[:-1]
 
 
 def weighted_choice(choices):
@@ -73,44 +79,33 @@ def weighted_choice(choices):
 def saveGraph(G, filename):
     """ Saves graph in json format
     """
-    # TODO make all file file accessing done with context manager
-    outfile = open(filename, 'w')
-    outfile.write(json.dumps(G, indent=4, sort_keys=True))
-    # json.dump(graph, outfile)  # this one looks gross
+    with open(filename, 'w') as outfile:
+        outfile.write(json.dumps(G, indent=4, sort_keys=True))
 
 
 def openGraph(filename):
     """ Open a json formatted graph in dict form
     """
-    f = open(filename)
-    G = json.load(f)
-    f.close()
-    return G
+    with open(filename) as f:
+        return json.load(f)
 
 
 def testMakingFile():
     """ just to test if things work the way I think they should
     """
-    filename = "fear_and_loathing.txt"
-    f = open(filename)
-    graph = {}
-    lines = [i for i in f if re.search("[a-zA-Z]", i)]  # if there are characters in line
+    with open(testFilename) as f:
+        graph = {}
+        lines = [i for i in f if re.search("[a-zA-Z]", i)]  # if there are characters in line
 
-    f.close()
-    wholeThing = "".join(lines)
-
-    addLineToWeightedGraph(graph, wholeThing)
-
-    #for line in lines:
-    #    addLineToWeightedGraph(graph, line)
-
-    saveGraph(graph, "wordGraph.json")
+    for each in lines:
+        createWeightedGraphFromSequence(graph, each)
+    saveGraph(graph, graphFile)
 
 
 def testOpeningAndGenerating():
     """ test opening an already saved file
     """
-    graph = openGraph("wordGraph.json")
+    graph = openGraph(graphFile)
     print ' '.join(traverseGraph(graph, 20))
 
 
