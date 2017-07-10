@@ -7,7 +7,32 @@ noises
 import wave
 import graph
 
-infileName = 'sample.wav'
+import struct
+from mpl_toolkits.axes_grid.axislines import SubplotZero
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+def graphWaveSamples(samples):
+    y = [struct.unpack('h', i) for i in samples]
+    fig = plt.figure(1)
+    ax = SubplotZero(fig, 111)
+    fig.add_subplot(ax)
+
+    for direction in ["xzero", "yzero"]:
+        ax.axis[direction].set_axisline_style("-|>")
+        ax.axis[direction].set_visible(True)
+
+    for direction in ["left", "right", "bottom", "top"]:
+        ax.axis[direction].set_visible(False)
+
+    x = range(len(y))
+    ax.plot(x, y)
+
+    plt.show()
+
+
+infileName = 'sine440.wav'
 outfileName = 'new.wav'
 
 frames = []
@@ -34,3 +59,5 @@ for _ in range(10):
 
 b.writeframes(''.join(newTraversal))
 b.close()
+
+graphWaveSamples(frames)
