@@ -25,8 +25,8 @@ def createWeightedGraphFromSequence(G, L):
     L.append("<END>")
     for each in L:
         # removes non-printable characters
-        if not(each == "<START>" or each == "<END>"):
-            each = ''.join([x for x in each if x in string.ascii_letters])
+        #if not(each == "<START>" or each == "<END>"):
+        #    each = ''.join([x for x in each if x in string.ascii_letters])
 
         if not each:
             continue
