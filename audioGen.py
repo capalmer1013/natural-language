@@ -12,9 +12,17 @@ from mpl_toolkits.axes_grid.axislines import SubplotZero
 import matplotlib.pyplot as plt
 import numpy as np
 
+# Something important to remember:
+# 8bit wavs are unsigned
+# 16bit wavs are signed.
+# will need to add flexibility for this
 
 def graphWaveSamples(samples):
-    y = [struct.unpack('h', i) for i in samples]
+    y = [struct.unpack('h', i)[0] for i in samples]
+    #print y
+    print "max:", max(y)
+    print "min:", min(y)
+    print "avg:", sum(y)/float(len(y))
     fig = plt.figure(1)
     ax = SubplotZero(fig, 111)
     fig.add_subplot(ax)
