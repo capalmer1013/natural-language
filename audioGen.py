@@ -18,7 +18,7 @@ b = wave.open(outfileName, 'w')
 
 sampleWidth = a.getsampwidth()
 
-b.setnchannels(a.getnchannels())
+b.setnchannels(1)
 b.setsampwidth(a.getsampwidth())
 b.setframerate(a.getframerate())
 
