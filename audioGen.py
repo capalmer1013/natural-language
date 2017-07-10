@@ -34,6 +34,7 @@ def graphWaveSamples(samples):
     for direction in ["left", "right", "bottom", "top"]:
         ax.axis[direction].set_visible(False)
 
+
     x = range(len(y))
     ax.plot(x, y)
 
@@ -60,7 +61,7 @@ def findCyclePeriods(samples):
     return cycleBeginings
 
 
-infileName = 'sample.wav'
+infileName = 'sine440.wav'
 outfileName = 'new.wav'
 
 frames = []
@@ -88,4 +89,17 @@ for _ in range(10):
 b.writeframes(''.join(newTraversal))
 b.close()
 
+cycleNodes = findCyclePeriods(frames)
+
+previous = 0
+cycleLengths = []
+for each in cycleNodes:
+    cycleLengths.append(each-previous)
+    previous = each
+
+print "number of cycles:", len(cycleLengths)
+print "avg cycle length:", sum(cycleLengths)/float(len(cycleLengths))
+print "max cycle length:", max(cycleLengths)
+print "min cycle length:", min(cycleLengths)
 graphWaveSamples(frames)
+
