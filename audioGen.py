@@ -40,7 +40,27 @@ def graphWaveSamples(samples):
     plt.show()
 
 
-infileName = 'sine440.wav'
+def findCyclePeriods(samples):
+    samples = [struct.unpack('h', i)[0] for i in samples]  # turn samples into signed ints
+    previous = None
+    cycleBeginings = []
+    count = -1
+
+    for sample in samples:
+        count += 1
+        if not previous:
+            previous = sample
+            continue
+        
+        if previous <= 0 and sample >= 0:
+            cycleBeginings.append(count)
+    
+        previous = sample
+
+    return cycleBeginings
+
+
+infileName = 'sample.wav'
 outfileName = 'new.wav'
 
 frames = []
