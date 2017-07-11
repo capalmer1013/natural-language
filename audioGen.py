@@ -17,6 +17,14 @@ import numpy as np
 # 16bit wavs are signed.
 # will need to add flexibility for this
 
+
+# next steps
+# add function for extracting
+#   min, max amplitude
+#   freq 
+# from each wave period
+# and then generating a sinewave
+# these should be the states
 def graphWaveSamples(samples):
     y = [struct.unpack('h', i)[0] for i in samples]
     #print y
